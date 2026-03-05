@@ -7,111 +7,96 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
+        /* Reverted to the first professional blue theme */
         :root { 
-            --bg: #f4f7f9; 
+            --bg: #f4f7f6; 
             --primary: #2c3e50; 
-            --header-bg: #1a508b; 
-            --total-bg: #d4edda; 
-            --border: #ced4da; 
+            --accent: #3498db; 
+            --total-bg: #d4edda;
+            --border: #eee;
         }
-        
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; padding: 10px; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
-        .wrapper { max-width: 1250px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); flex-grow: 1; }
-        
-        header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--header-bg); padding-bottom: 15px; margin-bottom: 20px; gap: 15px; }
-        .date-time-group { display: flex; gap: 10px; flex-wrap: wrap; }
-        .timestamp-box input { border: 1px solid #bbb; padding: 10px; border-radius: 6px; font-size: 0.9rem; width: 140px; }
 
-        .controls { display: flex; flex-wrap: wrap; gap: 20px; background: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-        .toggle-item { display: flex; align-items: center; gap: 10px; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 10px; color: #333; }
+        
+        .wrapper { max-width: 1200px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        
+        header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; gap: 15px; }
+        
+        .date-time-group { display: flex; gap: 10px; }
+        .timestamp-box input { border: 1px solid #ddd; padding: 8px; border-radius: 4px; width: 140px; }
 
-        .table-container { 
-            overflow-x: auto; 
-            -webkit-overflow-scrolling: touch; 
-            margin-bottom: 20px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-        }
+        .controls { display: flex; flex-wrap: wrap; gap: 20px; background: #fdfdfd; padding: 15px; border-radius: 6px; border: 1px solid #eee; margin-bottom: 20px; }
+        .toggle-item { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.9rem; }
+
+        .table-container { overflow-x: auto; border: 1px solid #eee; border-radius: 8px; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; min-width: 950px; }
         
-        table { width: 100%; border-collapse: collapse; min-width: 1000px; background: white; }
+        /* Header Styling */
+        th { background: #f8f9fa; padding: 12px 8px; border: 1px solid #eee; font-size: 0.85rem; text-transform: uppercase; color: var(--primary); }
+        td { padding: 10px 5px; border: 1px solid #eee; vertical-align: middle; text-align: center; }
         
+        /* Sticky Branch Column */
         .branch-cell { 
             position: sticky; 
             left: 0; 
-            background: #fff; 
-            z-index: 2; 
+            background: white !important; 
+            z-index: 5; 
             text-align: left; 
             padding-left: 15px; 
-            width: 200px;
-            border-right: 2px solid var(--header-bg) !important;
+            min-width: 200px;
+            border-right: 2px solid var(--accent) !important;
         }
+        thead th.branch-cell { background: #f8f9fa !important; z-index: 6; }
 
-        thead tr:first-child th { background: var(--header-bg); color: white; border: 1px solid #0d3b66; font-size: 1rem; }
-        thead tr:last-child th { background: #f8f9fa; color: var(--primary); border: 1px solid var(--border); font-size: 0.8rem; }
+        .bpm-tag { display: block; font-size: 0.75rem; color: #999; font-weight: normal; margin-top: 2px; }
+        input[type="number"] { width: 65px; padding: 8px; border: 1px solid #e0e0e0; border-radius: 4px; text-align: center; }
         
-        thead th.branch-cell { background: var(--header-bg) !important; color: white !important; z-index: 3; }
-        
-        th, td { padding: 12px 8px; border: 1px solid var(--border); text-align: center; }
-        .bpm-name { display: block; font-size: 0.7rem; color: #777; font-weight: normal; margin-top: 3px; }
-        
-        input[type="number"] { width: 70px; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; }
-        input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+        .total-row { background: var(--total-bg) !important; font-weight: bold; }
+        .total-row td { border-top: 2px solid #28a745; }
 
-        .total-row { background: var(--total-bg) !important; font-weight: bold; color: #155724; }
-        .total-row td { border-top: 3px solid #155724; }
-        .total-row .branch-cell { background: var(--total-bg) !important; }
+        .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; align-items: center; }
+        button { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-add { background: #27ae60; color: white; margin-right: auto; }
+        .btn-jpg { background: #5a6268; color: white; }
+        .btn-pdf { background: var(--accent); color: white; }
 
-        .btn-group { display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
-        button { padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .btn-add { background: #28a745; color: white; float: left; }
-        .btn-jpg { background: #495057; color: white; }
-        .btn-pdf { background: #c0392b; color: white; }
-        button:hover { opacity: 0.9; transform: translateY(-2px); }
+        footer { text-align: center; padding: 20px; font-size: 0.85rem; color: #666; }
+        footer a { color: var(--accent); text-decoration: none; font-weight: bold; }
 
-        /* Credits Footer */
-        footer { text-align: center; padding: 20px; font-size: 0.9rem; color: #666; }
-        footer a { color: var(--header-bg); text-decoration: none; font-weight: bold; border-bottom: 1px solid transparent; transition: 0.3s; }
-        footer a:hover { border-bottom: 1px solid var(--header-bg); }
-
-        /* Hidden Capture Area */
-        #report-capture { position: absolute; left: -9999px; width: 1100px; padding: 40px; background: white; }
-        .report-table { width: 100%; border-collapse: collapse; margin-top: 25px; }
-        .report-table th { background: #1a508b; color: white; border: 1px solid #000; padding: 12px; }
-        .report-table td { border: 1px solid #000; padding: 12px; text-align: center; font-size: 1.1rem; }
+        /* Export Capture Area */
+        #report-output { position: absolute; left: -9999px; width: 1000px; padding: 30px; background: white; }
+        .report-table { width: 100%; border-collapse: collapse; border: 1px solid #000; }
+        .report-table th, .report-table td { border: 1px solid #000; padding: 10px; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="wrapper">
     <header>
-        <div>
-            <h1 style="margin:0; color: var(--primary); font-size: 1.6rem;">BPM Performance Summary</h1>
-            <button class="btn-add" style="margin-top:10px;" onclick="addNewBranch()">+ Add New Branch</button>
-        </div>
+        <h2 style="margin:0;">BPM Performance Summary</h2>
         <div class="date-time-group">
             <div class="timestamp-box">
-                <label style="font-size: 0.75rem; font-weight: bold;">DATE</label><br>
-                <input type="text" id="manual_date">
+                <input type="text" id="m_date" placeholder="Date">
             </div>
             <div class="timestamp-box">
-                <label style="font-size: 0.75rem; font-weight: bold;">TIME SLOT</label><br>
-                <input type="text" id="manual_time" placeholder="e.g. 1 PM">
+                <input type="text" id="m_time" placeholder="Time (e.g. 12 PM)">
             </div>
         </div>
     </header>
 
     <div class="controls">
-        <label class="toggle-item"><input type="checkbox" id="tog_app" checked onchange="updateView()"> Appraisal</label>
-        <label class="toggle-item"><input type="checkbox" id="tog_hosh" checked onchange="inputCalc()"> Hoshpicash</label>
-        <label class="toggle-item"><input type="checkbox" id="tog_coll" checked onchange="inputCalc()"> Collection</label>
+        <div class="toggle-item"><input type="checkbox" id="tog_app" checked onchange="refresh()"> Appraisal</div>
+        <div class="toggle-item"><input type="checkbox" id="tog_hosh" checked onchange="refresh()"> Hoshpicash</div>
+        <div class="toggle-item"><input type="checkbox" id="tog_coll" checked onchange="refresh()"> Collection</div>
     </div>
 
     <div class="table-container">
         <table>
             <thead>
                 <tr>
-                    <th rowspan="2" style="width: 50px; background: #fff !important; color: #000 !important;">Sel</th>
-                    <th rowspan="2" class="branch-cell">Branch / BPM</th>
+                    <th rowspan="2" style="width: 40px;">Sel</th>
+                    <th rowspan="2" class="branch-cell">Branch Name</th>
                     <th colspan="2" class="col-app">Appraisal</th>
                     <th colspan="2" class="col-hosh">Hoshpicash</th>
                     <th colspan="2" class="col-coll">Collection</th>
@@ -122,146 +107,142 @@
                     <th class="col-coll">Target</th><th class="col-coll">Done</th>
                 </tr>
             </thead>
-            <tbody id="branch-body">
-                </tbody>
+            <tbody id="branch-list"></tbody>
             <tfoot>
                 <tr class="total-row">
                     <td colspan="2" class="branch-cell">GRAND TOTAL</td>
                     <td class="col-app" id="t_ad">0</td>
                     <td class="col-app" id="t_ap">0</td>
-                    <td class="col-hosh" colspan="2" id="t_hosh">0 | 0 (0%)</td>
-                    <td class="col-coll" colspan="2" id="t_coll">0 | 0 (0%)</td>
+                    <td class="col-hosh" id="t_hosh" colspan="2">0 | 0 (0%)</td>
+                    <td class="col-coll" id="t_coll" colspan="2">0 | 0 (0%)</td>
                 </tr>
             </tfoot>
         </table>
     </div>
 
-    <div class="btn-group">
-        <button class="btn-jpg" onclick="exportReport('jpg')">Download Report (JPG)</button>
-        <button class="btn-pdf" onclick="exportReport('pdf')">Download Report (PDF)</button>
+    <div class="actions">
+        <button class="btn-add" onclick="addBranch()">+ Add Branch</button>
+        <button class="btn-jpg" onclick="generate('jpg')">Export JPG</button>
+        <button class="btn-pdf" onclick="generate('pdf')">Export PDF</button>
     </div>
 </div>
 
 <footer>
-    Developed by <a href="https://www.linkedin.com/in/mrinal-kumar-dey" target="_blank">Mrinal Kumar</a>
+    Developed by <a href="https://www.linkedin.com/in/mrinal-kumar-843187217" target="_blank">Mrinal Kumar</a>
 </footer>
 
-<div id="report-capture">
-    <h1 style="text-align: center; margin: 0; color: #1a508b; text-transform: uppercase;">BPM Performance Summary</h1>
-    <p id="cap_meta" style="text-align: center; font-size: 1.3rem; margin-top: 15px; font-weight: bold; border-bottom: 2px solid #eee; padding-bottom: 10px;"></p>
-    <table class="report-table" id="cap_table"></table>
+<div id="report-output">
+    <h1 style="text-align: center; margin: 0;">BPM PERFORMANCE SUMMARY</h1>
+    <p id="print_meta" style="text-align: center; font-weight: bold; font-size: 1.1rem;"></p>
+    <table class="report-table" id="final-table"></table>
 </div>
 
 <script>
     const branches = [
-        {name: "Doomdoma", bpm: "Harichandra"}, {name: "Tinsukia", bpm: "Hasibul"},
-        {name: "Margherita", bpm: "Sonjib"}, {name: "Jagun", bpm: "Sarat Mudoi"},
-        {name: "Namrup", bpm: "Nilav"}, {name: "Naharkatia", bpm: "Dipankar"},
-        {name: "Dibrugarh", bpm: "Tinku"}, {name: "Moran", bpm: "Amit"},
-        {name: "Sonari", bpm: "Sontush"}, {name: "Jorhat", bpm: "Porinita"},
-        {name: "Golaghat", bpm: "Mrinal"}, {name: "Numoligarh", bpm: "Raktim"},
-        {name: "Tezpur", bpm: "Tapan"}, {name: "Dhekiajuli", bpm: "Mrinmoi"},
-        {name: "Gohpur", bpm: "Haren"}
+        {mc: "Doomdoma", bpm: "Harichandra"}, {mc: "Tinsukia", bpm: "Hasibul"},
+        {mc: "Margherita", bpm: "Sonjib"}, {mc: "Jagun", bpm: "Sarat Mudoi"},
+        {mc: "Namrup", bpm: "Nilav"}, {mc: "Naharkatia", bpm: "Dipankar"},
+        {mc: "Dibrugarh", bpm: "Tinku"}, {mc: "Moran", bpm: "Amit"},
+        {mc: "Sonari", bpm: "Sontush"}, {mc: "Jorhat", bpm: "Porinita"},
+        {mc: "Golaghat", bpm: "Mrinal"}, {mc: "Numoligarh", bpm: "Raktim"},
+        {mc: "Tezpur", bpm: "Tapan"}, {mc: "Dhekiajuli", bpm: "Mrinmoi"},
+        {mc: "Gohpur", bpm: "Haren"}
     ];
 
-    function renderRows() {
-        const tbody = document.getElementById('branch-body');
+    function init() {
+        const tbody = document.getElementById('branch-list');
         tbody.innerHTML = branches.map((b, i) => `
             <tr oninput="calc()">
                 <td><input type="checkbox" class="row-sel" checked onchange="calc()"></td>
-                <td class="branch-cell"><strong>${b.name}</strong><span class="bpm-name">${b.bpm}</span></td>
-                <td class="col-app"><input type="number" class="v-ad" value="0"></td>
-                <td class="col-app"><input type="number" class="v-ap" value="0"></td>
-                <td class="col-hosh"><input type="number" class="v-ht" value="0"></td>
-                <td class="col-hosh"><input type="number" class="v-hd" value="0"></td>
-                <td class="col-coll"><input type="number" class="v-ct" value="0"></td>
-                <td class="col-coll"><input type="number" class="v-cd" value="0"></td>
+                <td class="branch-cell"><strong>${b.mc}</strong><span class="bpm-tag">${b.bpm}</span></td>
+                <td class="col-app"><input type="number" class="in-ad" value="0"></td>
+                <td class="col-app"><input type="number" class="in-ap" value="0"></td>
+                <td class="col-hosh"><input type="number" class="in-ht" value="0"></td>
+                <td class="col-hosh"><input type="number" class="in-hd" value="0"></td>
+                <td class="col-coll"><input type="number" class="in-ct" value="0"></td>
+                <td class="col-coll"><input type="number" class="in-cd" value="0"></td>
             </tr>
         `).join('');
-        document.getElementById('manual_date').value = new Date().toLocaleDateString('en-GB');
-        calc();
+        document.getElementById('m_date').value = new Date().toLocaleDateString('en-GB');
+        refresh();
     }
 
     function calc() {
         let ad=0, ap=0, ht=0, hd=0, ct=0, cd=0;
-        document.querySelectorAll('#branch-body tr').forEach(row => {
+        document.querySelectorAll('#branch-list tr').forEach(row => {
             if(row.querySelector('.row-sel').checked) {
-                ad += parseFloat(row.querySelector('.v-ad').value) || 0;
-                ap += parseFloat(row.querySelector('.v-ap').value) || 0;
-                ht += parseFloat(row.querySelector('.v-ht').value) || 0;
-                hd += parseFloat(row.querySelector('.v-hd').value) || 0;
-                ct += parseFloat(row.querySelector('.v-ct').value) || 0;
-                cd += parseFloat(row.querySelector('.v-cd').value) || 0;
+                ad += parseFloat(row.querySelector('.in-ad').value) || 0;
+                ap += parseFloat(row.querySelector('.in-ap').value) || 0;
+                ht += parseFloat(row.querySelector('.in-ht').value) || 0;
+                hd += parseFloat(row.querySelector('.in-hd').value) || 0;
+                ct += parseFloat(row.querySelector('.in-ct').value) || 0;
+                cd += parseFloat(row.querySelector('.in-cd').value) || 0;
             }
         });
         document.getElementById('t_ad').innerText = ad;
         document.getElementById('t_ap').innerText = ap;
-        
-        const hPerc = ht > 0 ? ((hd/ht)*100).toFixed(1) : 0;
-        const cPerc = ct > 0 ? ((cd/ct)*100).toFixed(1) : 0;
-        
-        document.getElementById('t_hosh').innerHTML = `${ht} | ${hd} <br>(${hPerc}%)`;
-        document.getElementById('t_coll').innerHTML = `${ct} | ${cd} <br>(${cPerc}%)`;
+        document.getElementById('t_hosh').innerText = `${ht} | ${hd} (${ht>0?((hd/ht)*100).toFixed(1):0}%)`;
+        document.getElementById('t_coll').innerText = `${ct} | ${cd} (${ct>0?((cd/ct)*100).toFixed(1):0}%)`;
     }
 
-    function inputCalc() { updateView(); calc(); }
-
-    function updateView() {
+    function refresh() {
         const sA = document.getElementById('tog_app').checked;
         const sH = document.getElementById('tog_hosh').checked;
         const sC = document.getElementById('tog_coll').checked;
         document.querySelectorAll('.col-app').forEach(e => e.style.display = sA ? '' : 'none');
         document.querySelectorAll('.col-hosh').forEach(e => e.style.display = sH ? '' : 'none');
         document.querySelectorAll('.col-coll').forEach(e => e.style.display = sC ? '' : 'none');
+        calc();
     }
 
-    function addNewBranch() {
+    function addBranch() {
         const n = prompt("Branch Name:"), b = prompt("BPM Name:");
-        if(n) { branches.push({name: n, bpm: b || "N/A"}); renderRows(); }
+        if(n) { branches.push({mc: n, bpm: b || "N/A"}); init(); }
     }
 
-    async function exportReport(type) {
+    async function generate(format) {
         const sA = document.getElementById('tog_app').checked, sH = document.getElementById('tog_hosh').checked, sC = document.getElementById('tog_coll').checked;
-        let html = `<thead><tr><th>BRANCH</th>`;
-        if(sA) html += `<th>APPR. DONE</th><th>APPR. PEND</th>`;
-        if(sH) html += `<th>HOSH. TARG</th><th>HOSH. DONE</th>`;
-        if(sC) html += `<th>COLL. TARG</th><th>COLL. DONE</th>`;
+        let html = `<thead><tr><th>Branch</th>`;
+        if(sA) html += `<th colspan="2">Appraisal</th>`;
+        if(sH) html += `<th colspan="2">Hoshpicash</th>`;
+        if(sC) html += `<th colspan="2">Collection</th>`;
+        html += `</tr><tr><th></th>`;
+        if(sA) html += `<th>Done</th><th>Pend</th>`;
+        if(sH) html += `<th>Targ</th><th>Done</th>`;
+        if(sC) html += `<th>Targ</th><th>Done</th>`;
         html += `</tr></thead><tbody>`;
 
-        document.querySelectorAll('#branch-body tr').forEach(row => {
+        document.querySelectorAll('#branch-list tr').forEach(row => {
             if(row.querySelector('.row-sel').checked) {
                 html += `<tr><td style="text-align:left; font-weight:bold;">${row.querySelector('strong').innerText}</td>`;
-                if(sA) html += `<td>${row.querySelector('.v-ad').value}</td><td>${row.querySelector('.v-ap').value}</td>`;
-                if(sH) html += `<td>${row.querySelector('.v-ht').value}</td><td>${row.querySelector('.v-hd').value}</td>`;
-                if(sC) html += `<td>${row.querySelector('.v-ct').value}</td><td>${row.querySelector('.v-cd').value}</td>`;
+                if(sA) html += `<td>${row.querySelector('.in-ad').value}</td><td>${row.querySelector('.in-ap').value}</td>`;
+                if(sH) html += `<td>${row.querySelector('.in-ht').value}</td><td>${row.querySelector('.in-hd').value}</td>`;
+                if(sC) html += `<td>${row.querySelector('.in-ct').value}</td><td>${row.querySelector('.in-cd').value}</td>`;
                 html += `</tr>`;
             }
         });
         
-        html += `<tr style="background:#d4edda; font-weight:bold; color:#155724;"><td>GRAND TOTAL</td>`;
+        html += `<tr style="background:#d4edda; font-weight:bold;"><td>GRAND TOTAL</td>`;
         if(sA) html += `<td>${document.getElementById('t_ad').innerText}</td><td>${document.getElementById('t_ap').innerText}</td>`;
-        if(sH) html += `<td colspan="2">${document.getElementById('t_hosh').innerText.replace('<br>', ' ')}</td>`;
-        if(sC) html += `<td colspan="2">${document.getElementById('t_coll').innerText.replace('<br>', ' ')}</td>`;
+        if(sH) html += `<td colspan="2">${document.getElementById('t_hosh').innerText}</td>`;
+        if(sC) html += `<td colspan="2">${document.getElementById('t_coll').innerText}</td>`;
         html += `</tr></tbody>`;
 
-        document.getElementById('cap_table').innerHTML = html;
-        document.getElementById('cap_meta').innerText = `Date: ${document.getElementById('manual_date').value}  |  Time: ${document.getElementById('manual_time').value}`;
+        document.getElementById('final-table').innerHTML = html;
+        document.getElementById('print_meta').innerText = `Date: ${document.getElementById('m_date').value} | Time: ${document.getElementById('m_time').value}`;
 
-        const canvas = await html2canvas(document.getElementById('report-capture'), {scale: 2});
-        if(type === 'jpg') {
-            const l = document.createElement('a'); 
-            l.download = `Performance_Report_${document.getElementById('manual_time').value}.jpg`; 
-            l.href = canvas.toDataURL("image/jpeg"); 
-            l.click();
+        const canvas = await html2canvas(document.getElementById('report-output'), {scale: 2});
+        if(format === 'jpg') {
+            const l = document.createElement('a'); l.download = 'Summary.jpg'; l.href = canvas.toDataURL("image/jpeg"); l.click();
         } else {
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('l', 'mm', 'a4');
             pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 10, 277, 0);
-            pdf.save(`Performance_Report_${document.getElementById('manual_time').value}.pdf`);
+            pdf.save('Summary.pdf');
         }
     }
 
-    renderRows();
+    init();
 </script>
 </body>
 </html>
