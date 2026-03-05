@@ -7,7 +7,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        /* Reverted to the first professional blue theme */
         :root { 
             --bg: #f4f7f6; 
             --primary: #2c3e50; 
@@ -19,49 +18,58 @@
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 10px; color: #333; }
         
-        .wrapper { max-width: 1200px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .wrapper { max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         
-        header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; gap: 15px; }
-        
-        .date-time-group { display: flex; gap: 10px; }
-        .timestamp-box input { border: 1px solid #ddd; padding: 8px; border-radius: 4px; width: 140px; }
+        header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; gap: 10px; }
+        .date-time-group { display: flex; gap: 8px; }
+        .timestamp-box input { border: 1px solid #ddd; padding: 8px; border-radius: 4px; width: 120px; font-size: 0.85rem; }
 
-        .controls { display: flex; flex-wrap: wrap; gap: 20px; background: #fdfdfd; padding: 15px; border-radius: 6px; border: 1px solid #eee; margin-bottom: 20px; }
-        .toggle-item { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.9rem; }
+        .controls { display: flex; flex-wrap: wrap; gap: 15px; background: #fdfdfd; padding: 12px; border-radius: 6px; border: 1px solid #eee; margin-bottom: 15px; }
+        .toggle-item { display: flex; align-items: center; gap: 5px; font-weight: 600; font-size: 0.85rem; }
 
-        .table-container { overflow-x: auto; border: 1px solid #eee; border-radius: 8px; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; min-width: 950px; }
+        /* The Scrolling Fix */
+        .table-container { 
+            overflow-x: auto; 
+            border: 1px solid #eee; 
+            border-radius: 8px; 
+            margin-bottom: 20px;
+            position: relative;
+        }
         
-        /* Header Styling */
-        th { background: #f8f9fa; padding: 12px 8px; border: 1px solid #eee; font-size: 0.85rem; text-transform: uppercase; color: var(--primary); }
-        td { padding: 10px 5px; border: 1px solid #eee; vertical-align: middle; text-align: center; }
+        table { width: 100%; border-collapse: collapse; min-width: 850px; }
         
-        /* Sticky Branch Column */
+        th { background: #f8f9fa; padding: 10px 5px; border: 1px solid #eee; font-size: 0.75rem; text-transform: uppercase; color: var(--primary); }
+        td { padding: 8px 4px; border: 1px solid #eee; vertical-align: middle; text-align: center; }
+        
+        /* Sticky Column Width Fix for Mobile */
         .branch-cell { 
             position: sticky; 
             left: 0; 
             background: white !important; 
             z-index: 5; 
             text-align: left; 
-            padding-left: 15px; 
-            min-width: 200px;
+            padding-left: 10px; 
+            width: 130px; /* Fixed width so it doesn't cover the screen */
+            max-width: 140px;
             border-right: 2px solid var(--accent) !important;
+            font-size: 0.85rem;
         }
         thead th.branch-cell { background: #f8f9fa !important; z-index: 6; }
 
-        .bpm-tag { display: block; font-size: 0.75rem; color: #999; font-weight: normal; margin-top: 2px; }
-        input[type="number"] { width: 65px; padding: 8px; border: 1px solid #e0e0e0; border-radius: 4px; text-align: center; }
+        .bpm-tag { display: block; font-size: 0.65rem; color: #999; font-weight: normal; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        .total-row { background: var(--total-bg) !important; font-weight: bold; }
+        input[type="number"] { width: 55px; padding: 6px; border: 1px solid #e0e0e0; border-radius: 4px; text-align: center; font-size: 0.9rem; }
+        
+        .total-row { background: var(--total-bg) !important; font-weight: bold; font-size: 0.85rem; }
         .total-row td { border-top: 2px solid #28a745; }
 
-        .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; align-items: center; }
-        button { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; align-items: center; }
+        button { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.85rem; }
         .btn-add { background: #27ae60; color: white; margin-right: auto; }
         .btn-jpg { background: #5a6268; color: white; }
         .btn-pdf { background: var(--accent); color: white; }
 
-        footer { text-align: center; padding: 20px; font-size: 0.85rem; color: #666; }
+        footer { text-align: center; padding: 15px; font-size: 0.8rem; color: #666; }
         footer a { color: var(--accent); text-decoration: none; font-weight: bold; }
 
         /* Export Capture Area */
@@ -74,28 +82,24 @@
 
 <div class="wrapper">
     <header>
-        <h2 style="margin:0;">BPM Performance Summary</h2>
+        <h2 style="margin:0; font-size: 1.2rem;">BPM Performance Summary</h2>
         <div class="date-time-group">
-            <div class="timestamp-box">
-                <input type="text" id="m_date" placeholder="Date">
-            </div>
-            <div class="timestamp-box">
-                <input type="text" id="m_time" placeholder="Time (e.g. 12 PM)">
-            </div>
+            <input type="text" id="m_date" placeholder="Date">
+            <input type="text" id="m_time" placeholder="Time (e.g. 4 PM)">
         </div>
     </header>
 
     <div class="controls">
-        <div class="toggle-item"><input type="checkbox" id="tog_app" checked onchange="refresh()"> Appraisal</div>
-        <div class="toggle-item"><input type="checkbox" id="tog_hosh" checked onchange="refresh()"> Hoshpicash</div>
-        <div class="toggle-item"><input type="checkbox" id="tog_coll" checked onchange="refresh()"> Collection</div>
+        <div class="toggle-item"><input type="checkbox" id="tog_app" checked onchange="refresh()"> Appr.</div>
+        <div class="toggle-item"><input type="checkbox" id="tog_hosh" checked onchange="refresh()"> Hosh.</div>
+        <div class="toggle-item"><input type="checkbox" id="tog_coll" checked onchange="refresh()"> Coll.</div>
     </div>
 
     <div class="table-container">
         <table>
             <thead>
                 <tr>
-                    <th rowspan="2" style="width: 40px;">Sel</th>
+                    <th rowspan="2" style="width: 30px;">Sel</th>
                     <th rowspan="2" class="branch-cell">Branch Name</th>
                     <th colspan="2" class="col-app">Appraisal</th>
                     <th colspan="2" class="col-hosh">Hoshpicash</th>
@@ -103,8 +107,8 @@
                 </tr>
                 <tr>
                     <th class="col-app">Done</th><th class="col-app">Pend</th>
-                    <th class="col-hosh">Target</th><th class="col-hosh">Done</th>
-                    <th class="col-coll">Target</th><th class="col-coll">Done</th>
+                    <th class="col-hosh">Targ</th><th class="col-hosh">Done</th>
+                    <th class="col-coll">Targ</th><th class="col-coll">Done</th>
                 </tr>
             </thead>
             <tbody id="branch-list"></tbody>
@@ -122,8 +126,8 @@
 
     <div class="actions">
         <button class="btn-add" onclick="addBranch()">+ Add Branch</button>
-        <button class="btn-jpg" onclick="generate('jpg')">Export JPG</button>
-        <button class="btn-pdf" onclick="generate('pdf')">Export PDF</button>
+        <button class="btn-jpg" onclick="generate('jpg')">JPG</button>
+        <button class="btn-pdf" onclick="generate('pdf')">PDF</button>
     </div>
 </div>
 
